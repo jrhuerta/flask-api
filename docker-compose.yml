@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+  pg:
+      image: postgres:9.4
+      ports:
+      - "5432:5432"
+      volumes:
+      - pg_dv:/var/lib/postgresql/data
+  db:
+      image: mysql
+      ports:
+      - "3306:3306"
+      environment:
+          MYSQL_ROOT_PASSWORD: rootmysql 
+          MYSQL_DB: flask_api 
+          MYSQL_USER: flask_api
+          MYSQL_PASSWORD: 9eMJPrJQAJnmooUlDWH3OsKrKLM 
+      volumes:
+      - db_dv:/var/lib/mysql
+  redis:
+      image: redis
+      ports:
+      - "6379:6379"
+volumes:
+  pg_dv:
+    external:
+      name: alaya_pg_dv
+  db_dv:
+    external:
+      name: alaya_db_dv
