@@ -5,6 +5,7 @@ from sqlalchemy import create_engine as sqlalchemy_create_engine
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.orm import scoped_session, sessionmaker
 
+from cache import memoize
 
 __all__ = [
     'create_engine',
@@ -33,6 +34,7 @@ class LookLively(object):
                 raise
 
 
+@memoize
 def create_engine(url, **kwargs):
     default_params = dict(
         encoding='utf8',

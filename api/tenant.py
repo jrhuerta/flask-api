@@ -9,6 +9,8 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import exc, scoped_session, sessionmaker
 
+from cache import memoize
+
 _Base = declarative_base()
 
 
@@ -25,6 +27,7 @@ class _Tenant(_Base):
     disabled = Column(Boolean, nullable=False, default=0, server_default='0')
 
 
+@memoize
 def get_tenant(tenant_db_url, name):
     engine = create_engine(tenant_db_url)
     session = None
@@ -52,5 +55,3 @@ def get_tenant(tenant_db_url, name):
         if session is not None:
             session.remove()
             logging.debug('Finalizing tenant session.')
-        session = None
-        engine = None
