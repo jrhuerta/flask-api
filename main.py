@@ -2,7 +2,7 @@ from api.api import app_factory
 
 
 app = app_factory(__name__, config={
-    'TENANT_DSN': 'mysql://test:test@db/common'
+    'TENANT_DSN': 'mysql://test:test@localhost.docker/common'
 })
 
 

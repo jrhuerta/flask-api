@@ -1,8 +1,9 @@
+from flask import Flask,  jsonify, _app_ctx_stack as stack
 from functools import partial
 
 import session
-from flask import Flask,  jsonify, _app_ctx_stack as stack
-import cache
+import tenant
+
 from v1.actions import blueprint
 
 
@@ -13,14 +14,14 @@ def app_factory(name, config=None):
     app.errorhandler(ApiException)(handle_api_errors)
     app.errorhandler(AssertionError)(handle_assertion_errors)
 
-    app.db_session = partial(
-        session.session_factory,
-        tenants_dsn=app.config.get('TENANT_DSN'),
-        override_dsn=app.config.get('OVERRIDE_DSN'),
-        tenant_name=get_tenant_name
-    )
+    per_request_get_tenant = partial(
+        tenant.get_tenant,
+        app.config.get('TENANT_DSN'),
+        get_tenant_name)
 
-    cache.configure(config=app.config)
+    app.session_factory = partial(
+        session.session_factory,
+        per_request_get_tenant)
 
     app.teardown_appcontext(session.teardown)
 
