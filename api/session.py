@@ -36,14 +36,14 @@ class LookLively(object):
 
 @memoize
 def create_engine(url, **kwargs):
-    default_params = dict(
-        encoding='utf8',
-        echo=False,
-        listeners=[LookLively()]
-    )
-    engine_type_params = dict(
-        mysql=dict(pool_recycle=3600)
-    )
+    default_params = {
+        'encoding': 'utf8',
+        'echo': False,
+        'listeners': [LookLively()]
+    }
+    engine_type_params = {
+        'mysql': {'pool_recycle': 3600}
+    }
     dialect = make_url(url).get_dialect()
     params = default_params
     if dialect in engine_type_params:
@@ -53,19 +53,19 @@ def create_engine(url, **kwargs):
 
 
 def create_session(url):
-    assert url, "Connection string required."
+    assert url, 'Connection string required.'
     engine = create_engine(url)
     session = scoped_session(
         sessionmaker(bind=engine, autocommit=False, autoflush=True),
         scopefunc=stack.__ident_func__
     )
-    logging.debug("Session created: {}".format(url))
+    logging.debug('Session created: {}'.format(url))
     return session
 
 
 def session_factory(tenant, db):
     ctx = stack.top
-    assert ctx is not None, "Requesting a session with no context."
+    assert ctx is not None, 'Requesting a session with no context.'
     sessions = getattr(ctx, _CONST_CTX_SESSION, None)
     if sessions is None:
         sessions = {}
@@ -90,7 +90,7 @@ def teardown(exception):
                 session.commit()
             except Exception, ex:
                 exception = ex
-                logging.error("ERROR: " + ex.message)
-        logging.debug("Remove session: {}" .format(str(session.bind.url)))
+                logging.error('ERROR: ' + ex.message)
+        logging.debug('Remove session: {}' .format(str(session.bind.url)))
         session.remove()
     return exception

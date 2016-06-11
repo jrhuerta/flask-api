@@ -43,14 +43,14 @@ def get_tenant(tenant_db_url, name):
             .one_or_none()
 
         # No configuration found for this tenant.
-        assert tenant, "Tenant not configured."
-        assert not tenant.disabled, "Tenant configured, but disabled."
+        assert tenant, 'Tenant not configured.'
+        assert not tenant.disabled, 'Tenant configured, but disabled.'
 
-        logging.debug("{}: Tenant found".format(name))
+        logging.debug('{}: Tenant found'.format(name))
         return tenant
     except exc.MultipleResultsFound:
         # Multiple configurations found.
-        raise AssertionError("{}: Multiple configurations found".format(name))
+        raise AssertionError('{}: Multiple configurations found'.format(name))
     finally:
         if session is not None:
             session.remove()

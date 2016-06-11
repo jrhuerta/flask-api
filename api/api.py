@@ -61,12 +61,12 @@ def handle_assertion_errors(error):
 
 
 def pull_tenant_from_request(endpoint, values):
-    assert stack.top, "Outside application context."
+    assert stack.top, 'Outside application context.'
     stack.tenant = values.pop('tenant', None) if values else None
 
 
 def get_tenant_name():
-    assert stack.top, "Outside application context."
+    assert stack.top, 'Outside application context.'
     return getattr(stack, 'tenant', None)
 
 
