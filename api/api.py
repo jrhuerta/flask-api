@@ -8,7 +8,7 @@ from v1.actions import blueprint
 
 
 def app_factory(name, config=None):
-    app = Flask(__name__)
+    app = Flask(name)
     app.config.update(config or {})
 
     app.errorhandler(ApiException)(handle_api_errors)

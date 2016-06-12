@@ -1,7 +1,8 @@
-blinker==1.4
-Flask==0.10.1
-Flask-Cache==0.13.1
-Logbook==0.12.5
-MySQL-python==1.2.5
-redis==2.10.5
-SQLAlchemy==1.0.12
+blinker
+Flask
+Flask-Cache
+Flask-RBAC
+Logbook
+MySQL-python
+redis
+SQLAlchemy
