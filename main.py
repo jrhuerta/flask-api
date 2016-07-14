@@ -1,5 +1,6 @@
 from api.api import app_factory
 import os
+import functools
 
 app = app_factory(__name__, config={
     'TENANT_DSN': 'mysql://test:test@localhost.docker/common'
