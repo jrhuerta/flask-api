@@ -1,11 +1,11 @@
 from flask import _app_ctx_stack as stack
 import logging
+import sqlalchemy
 from sqlalchemy import exc
-from sqlalchemy import create_engine as sqlalchemy_create_engine
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from cache import memoize
+from api.cache import memoize
 
 __all__ = [
     'create_engine',
@@ -27,7 +27,7 @@ class LookLively(object):
             except AttributeError:
                 # If it's not a mysql connection just skip
                 return
-        except dbapi_con.OperationalError, ex:
+        except dbapi_con.OperationalError as ex:
             if ex.args[0] in (2006, 2013, 2014, 2045, 2055):
                 raise exc.DisconnectionError()
             else:
@@ -49,7 +49,7 @@ def create_engine(url, **kwargs):
     if dialect in engine_type_params:
         params.update(engine_type_params[dialect])
     params.update(kwargs)
-    return sqlalchemy_create_engine(url, **params)
+    return sqlalchemy.create_engine(url, **params)
 
 
 def create_session(url):
@@ -74,6 +74,7 @@ def session_factory(tenant, db):
     if not db_session:
         tenant_ = tenant() if callable(tenant) else tenant
         url = getattr(tenant_, db, None)
+        assert url, '{0}: Not configured for {1}'.format(db, tenant_)
         db_session = create_session(url)
         sessions[db] = db_session
     return db_session
@@ -84,13 +85,13 @@ def teardown(exception):
     sessions = getattr(ctx, _CONST_CTX_SESSION, None)
     if not sessions:
         return exception
-    for db, session in sessions.iteritems():
+    for db, session in sessions.items():
         if exception is None:
             try:
                 session.commit()
-            except Exception, ex:
+            except Exception as ex:
                 exception = ex
                 logging.error('ERROR: ' + ex.message)
-        logging.debug('Remove session: {}' .format(str(session.bind.url)))
+        logging.debug('{}: Remove session.' .format(db))
         session.remove()
     return exception

@@ -9,8 +9,6 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import exc, scoped_session, sessionmaker
 
-from cache import memoize
-
 _Base = declarative_base()
 
 
@@ -27,9 +25,9 @@ class _Tenant(_Base):
     disabled = Column(Boolean, nullable=False, default=0, server_default='0')
 
 
-@memoize
 def get_tenant(tenant_db_url, name):
     engine = create_engine(tenant_db_url)
+    tenant_name = name() if callable(name) else name
     session = None
     try:
         session = scoped_session(sessionmaker(
@@ -39,12 +37,12 @@ def get_tenant(tenant_db_url, name):
         ))
         tenant = session \
             .query(_Tenant) \
-            .filter(_Tenant.tenant == name) \
+            .filter(_Tenant.tenant == tenant_name) \
             .one_or_none()
 
         # No configuration found for this tenant.
         assert tenant, 'Tenant not configured.'
-        assert not tenant.disabled, 'Tenant configured, but disabled.'
+        assert not tenant.disabled, '{0}: Tenant disabled.'.format(tenant)
 
         logging.debug('{}: Tenant found'.format(name))
         return tenant

@@ -1,27 +1,28 @@
 from flask import Flask,  jsonify, _app_ctx_stack as stack
 from functools import partial
 
-import session
-import tenant
+import api.session as session
+import api.tenant as tenant
 
-from v1.actions import blueprint
+
+from api.v1.actions import blueprint
 
 
 def app_factory(name, config=None):
-    app = Flask(__name__)
+    app = Flask(name)
     app.config.update(config or {})
 
     app.errorhandler(ApiException)(handle_api_errors)
     app.errorhandler(AssertionError)(handle_assertion_errors)
 
-    per_request_get_tenant = partial(
+    get_tenant_for_request = partial(
         tenant.get_tenant,
         app.config.get('TENANT_DSN'),
         get_tenant_name)
 
     app.session_factory = partial(
         session.session_factory,
-        per_request_get_tenant)
+        get_tenant_for_request)
 
     app.teardown_appcontext(session.teardown)
 
@@ -39,7 +40,7 @@ class ApiException(Exception):
     def __init__(self, message, status_code=None, payload=None):
         Exception.__init__(self)
         self.message = message
-        if status_code is not None:
+        if status_code:
             self.status_code = status_code
         self.payload = payload
 
@@ -56,7 +57,7 @@ def handle_api_errors(error):
 
 
 def handle_assertion_errors(error):
-    api_error = ApiException(error.message, status_code=400)
+    api_error = ApiException(repr(error), status_code=400)
     return handle_api_errors(api_error)
 
 
