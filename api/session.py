@@ -91,7 +91,7 @@ def teardown(exception):
                 session.commit()
             except Exception as ex:
                 exception = ex
-                logging.error('ERROR: ' + ex.message)
+                logging.error('ERROR: {}'.format(ex))
         logging.debug('{}: Remove session.' .format(db))
         session.remove()
     return exception

@@ -57,17 +57,19 @@ def handle_api_errors(error):
 
 
 def handle_assertion_errors(error):
-    api_error = ApiException(repr(error), status_code=400)
+    api_error = ApiException("{}".format(error), status_code=400)
     return handle_api_errors(api_error)
 
 
 def pull_tenant_from_request(endpoint, values):
     assert stack.top, 'Outside application context.'
-    stack.tenant = values.pop('tenant', None) if values else None
+    context = stack.top
+    context.tenant = values.pop('tenant', None) if values else None
 
 
 def get_tenant_name():
     assert stack.top, 'Outside application context.'
-    return getattr(stack, 'tenant', None)
+    context = stack.top
+    return getattr(context, 'tenant', None)
 
 
